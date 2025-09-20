@@ -1,101 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
-  <script>
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: 'default',
-      themeVariables: {
-        fontFamily: 'Arial',
-        fontSize: '14px',
-        primaryColor: '#f9f',
-        primaryTextColor: '#000000',
-        primaryBorderColor: '#333',
-        lineColor: '#333',
-        secondaryColor: '#eef',
-        secondaryTextColor: '#000000',
-        tertiaryColor: '#dfd',
-        tertiaryTextColor: '#000000',
-        quaternaryColor: '#ffe',
-        quaternaryTextColor: '#000000'
-      }
-    });
-  </script>
-  <style>
-    body {
-      background-color: white;
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <title>Test Radiator</title>
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <div class="mermaid">
-flowchart TD
-    subgraph GitHub [GitHub Cloud]
-        GHA[GitHub Actions]
-        GHR[sbsaa Repository]
-        GHP[GitHub Pages]
-    end
+  <h1>📊 Test Radiator Dashboard</h1>
+  <div id="projects"></div>
 
-    subgraph Storage [Git Storage]
-        GSR[git_storage repo]
-        APT[appium-tests/]
-        SBT[sbsaa-tests/]
-    end
-
-    subgraph Runner [Self-Hosted Runner WIN10]
-        SH[Actions Runner]
-        AS[Appium Server]
-        PY[Python + pytest]
-        UH[History Manager]
-        AO[Allure Generator]
-        ADB[ADB Bridge]
-    end
-
-    subgraph Device [Android Device]
-        AOS[Android OS]
-        SA[Weather App]
-        ADBD[ADB Daemon]
-    end
-
-    GHA -->|Trigger| SH
-    SH -->|Clone| GHR
-    SH -->|Load History| GSR
-    SH -->|Run Tests| AS
-    AS -->|Control| ADB
-    ADB -->|Connect| ADBD
-    ADBD -->|Execute| SA
-    UH -->|Process| AO
-    AO -->|Generate| GHP
-    AO -->|Save History| GSR
-
-    style GitHub fill:#f9f
-    style Storage fill:#ffe
-    style Runner fill:#eef
-    style Device fill:#dfd
-  </div>
-
-  <h3>Key Architecture Features:</h3>
-  <ul>
-    <li><strong>Git Storage Database:</strong> Centralized history persistence across multiple projects</li>
-    <li><strong>Project Isolation:</strong> Separate namespaces (appium-tests, sbsaa-tests) prevent data contamination</li>
-    <li><strong>Trigger Control:</strong> Manual execution or commit-based with [test] parameter</li>
-    <li><strong>History Management:</strong> Pre/post processing to handle Allure's malformed data injection</li>
-    <li><strong>Real Device Testing:</strong> Hardware-accelerated execution with ADB shell support</li>
-    <li><strong>Scalable Reporting:</strong> Automated deployment to GitHub Pages with trend analysis</li>
-  </ul>
-
-  <h3>Execution Flow:</h3>
-  <ol>
-    <li>Load previous test history from git storage</li>
-    <li>Prepare history files for current test run</li>
-    <li>Execute pytest test suite against real Android device</li>
-    <li>Generate Allure HTML report with historical trends</li>
-    <li>Clean up malformed data that Allure injects</li>
-    <li>Save updated history back to git storage</li>
-    <li>Deploy final report to GitHub Pages</li>
-  </ol>
+  <script src="js/dashboard.js"></script>
 </body>
 </html>

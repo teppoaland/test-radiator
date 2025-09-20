@@ -1,0 +1,2 @@
+const sbsaaData = 'https://raw.githubusercontent.com/teppoaland/git_storage/main/allure-history/sbsaa-tests/history-trend.json';
+const pocData = 'https://raw.githubusercontent.com/teppoaland/git_storage/main/allure-history/appium-tests/history-trend.json';
