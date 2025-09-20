@@ -1,16 +1,16 @@
 :root {
-    --primary-color: #8c7b6b;    /* Brownish primary color */
-    --secondary-color: #a67c52;  /* Brownish secondary */
-    --success-color: #5a8f5e;    /* Darker green */
-    --danger-color: #b74b4b;     /* Darker red */
-    --warning-color: #b78c4b;    /* Darker orange */
-    --info-color: #7d8c9e;       /* Muted blue-gray */
-    --light-color: #d9c7b8;      /* Light brown */
-    --dark-color: #3e352c;       /* Dark brown */
-    --text-light: #f5f5f5;       /* Light text for dark backgrounds */
-    --text-dark: #333333;        /* Dark text for light backgrounds */
-    --bg-dark: #000000;          /* black background */
-    --card-bg: #3a332c;          /* Slightly lighter card background */
+    --allure-bg-primary: #1e1e1e;
+    --allure-bg-secondary: #252526;
+    --allure-bg-tertiary: #2d2d30;
+    --allure-text-primary: #e8e8e8;
+    --allure-text-secondary: #cccccc;
+    --allure-accent: #4ec9b0;
+    --allure-success: #4ec9b0;
+    --allure-failure: #f44747;
+    --allure-broken: #ffc83d;
+    --allure-skipped: #9cdcfe;
+    --allure-border: #3e3e42;
+    --allure-hover: #37373d;
 }
 
 * {
@@ -20,10 +20,10 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
     line-height: 1.6;
-    color: var(--text-light);
-    background-color: var(--bg-dark);
+    color: var(--allure-text-primary);
+    background-color: var(--allure-bg-primary);
     padding: 20px;
 }
 
@@ -36,24 +36,26 @@ header {
     text-align: center;
     margin-bottom: 30px;
     padding: 20px;
-    background: var(--card-bg);
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    background: var(--allure-bg-secondary);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--allure-border);
 }
 
 h1 {
-    color: var(--light-color);
+    color: var(--allure-accent);
     margin-bottom: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 15px;
+    font-weight: 500;
 }
 
 .last-updated {
-    color: var(--light-color);
+    color: var(--allure-text-secondary);
     font-size: 14px;
-    opacity: 0.8;
+    opacity: 0.9;
 }
 
 #projects {
@@ -63,18 +65,20 @@ h1 {
 }
 
 .project {
-    background: var(--card-bg);
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    background: var(--allure-bg-secondary);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     padding: 20px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
     overflow: hidden;
+    border: 1px solid var(--allure-border);
 }
 
 .project:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border-color: var(--allure-accent);
 }
 
 .project-header {
@@ -83,29 +87,31 @@ h1 {
     align-items: center;
     margin-bottom: 15px;
     padding-bottom: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--allure-border);
 }
 
 .project-title {
-    font-size: 1.5rem;
-    color: var(--text-light);
+    font-size: 1.4rem;
+    color: var(--allure-text-primary);
     margin: 0;
+    font-weight: 500;
 }
 
 .report-link {
     display: inline-flex;
     align-items: center;
     text-decoration: none;
-    color: var(--light-color);
+    color: var(--allure-accent);
     font-weight: 500;
-    padding: 5px 10px;
-    border-radius: 5px;
+    padding: 6px 12px;
+    border-radius: 4px;
     transition: background-color 0.2s;
-    border: 1px solid var(--primary-color);
+    border: 1px solid var(--allure-accent);
+    font-size: 0.9rem;
 }
 
 .report-link:hover {
-    background-color: rgba(166, 124, 82, 0.2);
+    background-color: rgba(78, 201, 176, 0.15);
 }
 
 .summary {
@@ -113,9 +119,10 @@ h1 {
     justify-content: space-around;
     margin: 20px 0;
     padding: 15px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
+    background-color: var(--allure-bg-tertiary);
+    border-radius: 6px;
     font-size: 1.1rem;
+    border: 1px solid var(--allure-border);
 }
 
 .summary-item {
@@ -131,20 +138,21 @@ h1 {
 }
 
 .summary-label {
-    font-size: 0.9rem;
-    color: var(--light-color);
-    opacity: 0.8;
+    font-size: 0.85rem;
+    color: var(--allure-text-secondary);
+    opacity: 0.9;
 }
 
-.passed { color: var(--success-color); }
-.failed { color: var(--danger-color); }
-.broken { color: var(--warning-color); }
-.skipped { color: var(--info-color); }
+.passed { color: var(--allure-success); }
+.failed { color: var(--allure-failure); }
+.broken { color: var(--allure-broken); }
+.skipped { color: var(--allure-skipped); }
 
 .trend-title {
     margin: 15px 0 10px;
-    color: var(--light-color);
+    color: var(--allure-text-primary);
     font-size: 1rem;
+    font-weight: 500;
 }
 
 .trend {
@@ -157,7 +165,7 @@ h1 {
 .status-box {
     width: 28px;
     height: 28px;
-    border-radius: 6px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -166,17 +174,18 @@ h1 {
     color: white;
     position: relative;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform 0.2s, opacity 0.2s;
 }
 
 .status-box:hover {
     transform: scale(1.1);
+    opacity: 0.9;
 }
 
-.status-box.passed { background-color: var(--success-color); }
-.status-box.failed { background-color: var(--danger-color); }
-.status-box.broken { background-color: var(--warning-color); }
-.status-box.skipped { background-color: var(--info-color); }
+.status-box.passed { background-color: var(--allure-success); }
+.status-box.failed { background-color: var(--allure-failure); }
+.status-box.broken { background-color: var(--allure-broken); }
+.status-box.skipped { background-color: var(--allure-skipped); }
 .status-box.unknown { background-color: #7d7d7d; }
 
 .status-tooltip {
@@ -184,9 +193,9 @@ h1 {
     bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: rgba(30, 30, 30, 0.95);
     color: white;
-    padding: 5px 10px;
+    padding: 6px 12px;
     border-radius: 4px;
     font-size: 12px;
     white-space: nowrap;
@@ -194,6 +203,7 @@ h1 {
     visibility: hidden;
     transition: opacity 0.2s, visibility 0.2s;
     z-index: 100;
+    border: 1px solid var(--allure-border);
 }
 
 .status-box:hover .status-tooltip {
@@ -202,22 +212,22 @@ h1 {
 }
 
 .loading {
-    color: var(--light-color);
+    color: var(--allure-text-secondary);
     font-style: italic;
     text-align: center;
     padding: 20px;
-    opacity: 0.7;
+    opacity: 0.8;
 }
 
 .error {
-    color: var(--danger-color);
+    color: var(--allure-failure);
     font-weight: 500;
     text-align: center;
     padding: 10px;
-    background-color: rgba(183, 75, 75, 0.1);
+    background-color: rgba(244, 71, 71, 0.1);
     border-radius: 5px;
     margin: 10px 0;
-    border: 1px solid rgba(183, 75, 75, 0.3);
+    border: 1px solid rgba(244, 71, 71, 0.3);
 }
 
 .project-footer {
@@ -225,7 +235,7 @@ h1 {
     justify-content: space-between;
     margin-top: 15px;
     font-size: 0.85rem;
-    color: var(--light-color);
+    color: var(--allure-text-secondary);
     opacity: 0.7;
 }
 
@@ -233,8 +243,8 @@ h1 {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--allure-accent);
+    color: #1e1e1e;
     border: none;
     border-radius: 50%;
     width: 60px;
@@ -243,13 +253,13 @@ h1 {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     transition: background-color 0.3s, transform 0.3s;
     z-index: 100;
 }
 
 .refresh-btn:hover {
-    background-color: var(--secondary-color);
+    background-color: #3ab39d;
     transform: rotate(30deg);
 }
 
@@ -286,5 +296,11 @@ h1 {
     
     .summary-item {
         flex: 1 0 40%;
+    }
+    
+    .project-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
     }
 }
