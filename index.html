@@ -1,13 +1,483 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Test Radiator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Radiator Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #95a5a6;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .last-updated {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        #projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 20px;
+        }
+        
+        .project {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .project:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .project-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin: 0;
+        }
+        
+        .report-link {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--secondary-color);
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        
+        .report-link:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .summary {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .summary-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .passed { color: var(--success-color); }
+        .failed { color: var(--danger-color); }
+        .broken { color: var(--warning-color); }
+        .skipped { color: var(--info-color); }
+        
+        .trend-title {
+            margin: 15px 0 10px;
+            color: var(--dark-color);
+            font-size: 1rem;
+        }
+        
+        .trend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .status-box {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .status-box:hover {
+            transform: scale(1.1);
+        }
+        
+        .status-box.passed { background-color: var(--success-color); }
+        .status-box.failed { background-color: var(--danger-color); }
+        .status-box.broken { background-color: var(--warning-color); }
+        .status-box.skipped { background-color: var(--info-color); }
+        .status-box.unknown { background-color: #bdc3c7; }
+        
+        .status-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            z-index: 100;
+        }
+        
+        .status-box:hover .status-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .loading {
+            color: #7f8c8d;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .error {
+            color: var(--danger-color);
+            font-weight: 500;
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(231, 76, 60, 0.1);
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .project-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+        
+        .refresh-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, transform 0.3s;
+            z-index: 100;
+        }
+        
+        .refresh-btn:hover {
+            background-color: #2980b9;
+            transform: rotate(30deg);
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 1100px) {
+            #projects {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .project {
+                padding: 15px;
+            }
+            
+            .summary {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+            
+            .summary-item {
+                flex: 1 0 40%;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>📊 Test Radiator Dashboard V1.</h1>
-  <div id="projects"></div>
+    <div class="container">
+        <header>
+            <h1>📊 Test Radiator Dashboard v1.</h1>
+            <p class="last-updated">Last updated: <span id="update-time"></span></p>
+        </header>
+        
+        <div id="projects">
+            <div class="loading">Loading projects...</div>
+        </div>
+    </div>
+    
+    <button class="refresh-btn" id="refresh-btn" title="Refresh data">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 4v6h-6"></path>
+            <path d="M1 20v-6h6"></path>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
+            <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"></path>
+        </svg>
+    </button>
 
-  <script src="js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const projectsContainer = document.getElementById('projects');
+            const refreshBtn = document.getElementById('refresh-btn');
+            const updateTimeElement = document.getElementById('update-time');
+            
+            // Set initial update time
+            updateTimeElement.textContent = new Date().toLocaleTimeString();
+            
+            // Load projects initially
+            loadProjects();
+            
+            // Set up refresh button
+            refreshBtn.addEventListener('click', function() {
+                projectsContainer.innerHTML = '<div class="loading">Refreshing projects...</div>';
+                loadProjects();
+            });
+            
+            async function loadProjects() {
+                try {
+                    const res = await fetch("config/projects.json");
+                    if (!res.ok) throw new Error("Failed to load config/projects.json");
+                    const config = await res.json();
+                    
+                    // Clear loading message
+                    projectsContainer.innerHTML = '';
+                    
+                    for (const project of config.projects) {
+                        const card = document.createElement("div");
+                        card.className = "project";
+                        
+                        const projectHeader = document.createElement("div");
+                        projectHeader.className = "project-header";
+                        
+                        const title = document.createElement("h2");
+                        title.className = "project-title";
+                        title.textContent = project.name;
+                        
+                        const reportLink = document.createElement("a");
+                        reportLink.href = project.reportUrl || "#";
+                        reportLink.className = "report-link";
+                        reportLink.textContent = "View Full Report";
+                        reportLink.target = "_blank";
+                        
+                        projectHeader.appendChild(title);
+                        projectHeader.appendChild(reportLink);
+                        card.appendChild(projectHeader);
+                        
+                        // Summary section
+                        const summary = document.createElement("div");
+                        summary.className = "summary";
+                        summary.innerHTML = `
+                            <div class="summary-item">
+                                <div class="summary-value passed">0</div>
+                                <div class="summary-label">Passed</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value failed">0</div>
+                                <div class="summary-label">Failed</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value broken">0</div>
+                                <div class="summary-label">Broken</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value skipped">0</div>
+                                <div class="summary-label">Skipped</div>
+                            </div>
+                        `;
+                        card.appendChild(summary);
+                        
+                        // Trend title
+                        const trendTitle = document.createElement("h3");
+                        trendTitle.className = "trend-title";
+                        trendTitle.textContent = "Last 10 Builds";
+                        card.appendChild(trendTitle);
+                        
+                        // Trend container
+                        const trendDiv = document.createElement("div");
+                        trendDiv.className = "trend";
+                        card.appendChild(trendDiv);
+                        
+                        // Project footer for additional info
+                        const projectFooter = document.createElement("div");
+                        projectFooter.className = "project-footer";
+                        projectFooter.innerHTML = `<span>Build: <span class="build-id">Loading...</span></span>`;
+                        card.appendChild(projectFooter);
+                        
+                        projectsContainer.appendChild(card);
+                        
+                        try {
+                            const dataRes = await fetch(project.dataUrl);
+                            if (!dataRes.ok) throw new Error("Failed to load data " + project.dataUrl);
+                            const data = await dataRes.json();
+                            
+                            if (Array.isArray(data) && data.length > 0) {
+                                const latest = data.slice(-10);
+                                
+                                // Update summary from newest build
+                                const newest = latest[latest.length - 1]?.data || {};
+                                const passed = newest.passed || 0;
+                                const failed = newest.failed || 0;
+                                const broken = newest.broken || 0;
+                                const skipped = newest.skipped || 0;
+                                const total = passed + failed + broken + skipped;
+                                
+                                summary.querySelector('.summary-value.passed').textContent = passed;
+                                summary.querySelector('.summary-value.failed').textContent = failed;
+                                summary.querySelector('.summary-value.broken').textContent = broken;
+                                summary.querySelector('.summary-value.skipped').textContent = skipped;
+                                
+                                // Update build ID in footer
+                                const buildId = latest[latest.length - 1]?.build || "N/A";
+                                projectFooter.querySelector('.build-id').textContent = buildId;
+                                
+                                // Create trend squares
+                                latest.forEach(build => {
+                                    const stats = build?.data || {};
+                                    const buildName = build?.build || "Unknown build";
+                                    
+                                    let status = "passed";
+                                    if (stats.failed > 0) status = "failed";
+                                    else if (stats.broken > 0) status = "broken";
+                                    else if (stats.skipped > 0) status = "skipped";
+                                    
+                                    const box = document.createElement("div");
+                                    box.className = `status-box ${status}`;
+                                    
+                                    // Add tooltip
+                                    const tooltip = document.createElement("div");
+                                    tooltip.className = "status-tooltip";
+                                    tooltip.textContent = `${buildName}: ✔${stats.passed || 0} ❌${stats.failed || 0} ⚠${stats.broken || 0} ⏭${stats.skipped || 0}`;
+                                    box.appendChild(tooltip);
+                                    
+                                    trendDiv.appendChild(box);
+                                });
+                            } else {
+                                const errorMsg = document.createElement("div");
+                                errorMsg.className = "error";
+                                errorMsg.textContent = "No trend data available";
+                                card.appendChild(errorMsg);
+                            }
+                        } catch (e) {
+                            console.error(e);
+                            const errorMsg = document.createElement("div");
+                            errorMsg.className = "error";
+                            errorMsg.textContent = "Failed to load trend data";
+                            card.appendChild(errorMsg);
+                        }
+                    }
+                    
+                    // Update the last updated time
+                    updateTimeElement.textContent = new Date().toLocaleTimeString();
+                } catch (e) {
+                    console.error(e);
+                    projectsContainer.innerHTML = `
+                        <div class="error">
+                            <h3>Error Loading Projects</h3>
+                            <p>${e.message}</p>
+                            <p>Please check if the config file exists and is valid JSON.</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Auto-refresh every 5 minutes
+            setInterval(() => {
+                loadProjects();
+            }, 300000);
+        });
+    </script>
 </body>
 </html>
