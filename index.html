@@ -34,8 +34,14 @@
             const updateTimeElement = document.getElementById('update-time');
             
             // Set initial update time
-            updateTimeElement.textContent = new Date().toLocaleTimeString();
-            
+            const now = new Date();
+            const formatted = now.getHours().toString().padStart(2,'0') + ':' +
+                  now.getMinutes().toString().padStart(2,'0') + ' ' +
+                  now.getDate().toString().padStart(2,'0') + '/' +
+                  (now.getMonth()+1).toString().padStart(2,'0') + '/' +
+                  now.getFullYear();
+            updateTimeElement.textContent = formatted;
+
             // Load projects initially
             loadProjects();
             
