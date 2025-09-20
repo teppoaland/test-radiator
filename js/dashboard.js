@@ -19,7 +19,7 @@ async function loadProjects() {
       summary.textContent = "Loading results...";
       card.appendChild(summary);
 
-      // radiator squares
+      // trend container
       const trendDiv = document.createElement("div");
       trendDiv.className = "trend";
       card.appendChild(trendDiv);
@@ -34,13 +34,14 @@ async function loadProjects() {
         if (Array.isArray(data) && data.length > 0) {
           const latest = data.slice(-10);
 
-          // update summary from newest build
-          const newest = latest[latest.length - 1].data.statistic;
+          // summary from newest build
+          const newest = latest[latest.length - 1]?.data || {};
           summary.textContent =
             `✔ ${newest.passed || 0} ❌ ${newest.failed || 0} ⚠ ${newest.broken || 0} ⏭ ${newest.skipped || 0}`;
 
+          // trend squares
           latest.forEach(build => {
-            const stats = build.data.statistic || {};
+            const stats = build?.data || {};
             let status = "passed";
             if (stats.failed > 0) status = "failed";
             else if (stats.broken > 0) status = "broken";
@@ -48,19 +49,20 @@ async function loadProjects() {
 
             const box = document.createElement("div");
             box.className = status;
+            box.style.display = "inline-block";
+            box.style.width = "20px";
+            box.style.height = "20px";
+            box.style.margin = "2px";
+            box.style.backgroundColor = status === "passed" ? "green" :
+                                       status === "failed" ? "red" :
+                                       status === "broken" ? "orange" : "gray";
             trendDiv.appendChild(box);
           });
         } else {
           summary.textContent = "No trend data available";
         }
-      } catch (err) {
-        summary.textContent = "Error loading test results";
-        console.error("Project fetch failed:", project.name, err);
+      } c
+      catch (e) {
+        console.error(e);
+        summary.textContent = "Failed to load trend data";
       }
-    }
-  } catch (err) {
-    console.error("Error loading config:", err);
-  }
-}
-
-loadProjects();
