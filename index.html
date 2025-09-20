@@ -33,14 +33,17 @@
             const refreshBtn = document.getElementById('refresh-btn');
             const updateTimeElement = document.getElementById('update-time');
             
-            // Set initial update time
-            const now = new Date();
-            const formatted = now.getHours().toString().padStart(2,'0') + ':' +
-                  now.getMinutes().toString().padStart(2,'0') + ' ' +
-                  now.getDate().toString().padStart(2,'0') + '/' +
-                  (now.getMonth()+1).toString().padStart(2,'0') + '/' +
-                  now.getFullYear();
-            updateTimeElement.textContent = formatted;
+            // Function to format date as DD/MM/YYYY hh:mm
+            function formatDate(date) {
+                return date.getDate().toString().padStart(2, '0') + '/' +
+                    (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                    date.getFullYear() + ' ' +
+                    date.getHours().toString().padStart(2, '0') + ':' +
+                    date.getMinutes().toString().padStart(2, '0');
+            }
+
+            // Set initial update time (moved inside DOMContentLoaded)
+            updateTimeElement.textContent = formatDate(new Date());
 
             // Load projects initially
             loadProjects();
@@ -185,7 +188,7 @@
                     }
                     
                     // Update the last updated time
-                    updateTimeElement.textContent = new Date().toLocaleTimeString();
+                    updateTimeElement.textContent = formatDate(new Date());
                 } catch (e) {
                     console.error(e);
                     projectsContainer.innerHTML = `
