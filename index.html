@@ -172,7 +172,7 @@
                                 // Add this new code to fetch and display version
                                 const projectName = project.dataUrl.includes('sbsaa-tests') ? 'sbsaa-tests' : 
                                                 project.dataUrl.includes('appium-tests') ? 'appium-tests' : 'unknown';
-                                const appVersion = await fetchProjectVersion(projectName);
+                                const appVersion = await fetchProjectAppInfo(projectName);
                                 projectFooter.querySelector('.app-version').textContent = appVersion;
                                 
                                     // Create trend squares
