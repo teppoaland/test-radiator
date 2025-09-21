@@ -18,30 +18,53 @@
         tertiaryColor: '#38a169',
         tertiaryTextColor: '#ffffff',
         quaternaryColor: '#d69e2e',
-        quaternaryTextColor: '#000000',
+        quaternaryTextColor: '#ffffff',
         background: '#1a202c',
         mainBkg: '#2d3748',
         secondaryBkg: '#4a5568',
-        tertiaryBkg: '#38a169'
+        tertiaryBkg: '#38a169',
+        cScale0: '#4a9eff',
+        cScale1: '#38a169', 
+        cScale2: '#d69e2e',
+        cScale3: '#805ad5',
+        cScale4: '#2d3748'
       }
     });
   </script>
   <style>
     body {
-      background-color: #1a202c;
-      color: #e2e8f0;
+      background-color: #1a202c !important;
+      color: #e2e8f0 !important;
       font-family: Arial, sans-serif;
       margin: 20px;
     }
     
+    /* Force dark mode for all elements */
+    * {
+      color-scheme: dark !important;
+    }
+    
+    /* Override Chrome's forced styles */
+    .mermaid * {
+      background-color: transparent !important;
+      color: inherit !important;
+    }
+    
+    /* Ensure mermaid diagram respects dark theme */
+    .mermaid {
+      background-color: #1a202c !important;
+      color: #ffffff !important;
+    }
+    
     h3 {
-      color: #4a9eff;
+      color: #4a9eff !important;
       border-bottom: 1px solid #4a5568;
       padding-bottom: 5px;
     }
     
     ul, ol {
-      background-color: #2d3748;
+      background-color: #2d3748 !important;
+      color: #e2e8f0 !important;
       padding: 15px;
       border-radius: 5px;
       border-left: 4px solid #4a9eff;
@@ -49,10 +72,16 @@
     
     li {
       margin-bottom: 8px;
+      color: #e2e8f0 !important;
     }
     
     strong {
-      color: #63b3ed;
+      color: #63b3ed !important;
+    }
+    
+    /* Force override for any auto-styling */
+    svg * {
+      color: inherit !important;
     }
   </style>
 </head>
