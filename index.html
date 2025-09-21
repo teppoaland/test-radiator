@@ -33,6 +33,20 @@
             const refreshBtn = document.getElementById('refresh-btn');
             const updateTimeElement = document.getElementById('update-time');
             
+            // JS to add version fetching
+            async function fetchProjectVersion(projectName) {
+            try {
+                const response = await fetch(`https://raw.githubusercontent.com/teppoaland/git_storage/main/allure-history/${projectName}/app_version.json`);
+                if (response.ok) {
+                const versionData = await response.json();
+                return versionData.tested_version;
+                }
+            } catch (error) {
+                console.log('Version data not available for', projectName);
+            }
+            return 'N/A';
+            }
+            
             // Function to format date as DD/MM/YYYY hh:mm
             function formatDate(date) {
                 return date.getDate().toString().padStart(2, '0') + '/' +
@@ -121,7 +135,9 @@
                         // Project footer for additional info
                         const projectFooter = document.createElement("div");
                         projectFooter.className = "project-footer";
-                        projectFooter.innerHTML = `<span>Build: <span class="build-id">Loading...</span></span>`;
+                        projectFooter.innerHTML = `  <span>Build: <span class="build-id">Loading...</span></span>
+    <span>Version: <span class="app-version">Loading...</span></span>
+`;
                         card.appendChild(projectFooter);
                         
                         projectsContainer.appendChild(card);
@@ -147,11 +163,17 @@
                                 summary.querySelector('.summary-value.broken').textContent = broken;
                                 summary.querySelector('.summary-value.skipped').textContent = skipped;
                                 
-                                // Update build ID in footer
-                                const buildId = latest[latest.length - 1]?.build || "N/A";
+                                // Update build ID in footer (existing code)
+                                const buildId = latest[latest.length - 1]?.buildOrder || "N/A";
                                 projectFooter.querySelector('.build-id').textContent = buildId;
+
+                                // Add this new code to fetch and display version
+                                const projectName = project.dataUrl.includes('sbsaa-tests') ? 'sbsaa-tests' : 
+                                                project.dataUrl.includes('appium-tests') ? 'appium-tests' : 'unknown';
+                                const appVersion = await fetchProjectVersion(projectName);
+                                projectFooter.querySelector('.app-version').textContent = appVersion;
                                 
-                                // Create trend squares
+                                    // Create trend squares
                                 latest.forEach(build => {
                                     const stats = build?.data || {};
                                     const buildName = build?.build || "Unknown build";
