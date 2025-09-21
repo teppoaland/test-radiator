@@ -5,28 +5,54 @@
   <script>
     mermaid.initialize({
       startOnLoad: true,
-      theme: 'default',
+      theme: 'dark',
       themeVariables: {
         fontFamily: 'Arial',
         fontSize: '14px',
-        primaryColor: '#f9f',
-        primaryTextColor: '#000000',
-        primaryBorderColor: '#333',
-        lineColor: '#333',
-        secondaryColor: '#eef',
-        secondaryTextColor: '#000000',
-        tertiaryColor: '#dfd',
-        tertiaryTextColor: '#000000',
-        quaternaryColor: '#ffe',
-        quaternaryTextColor: '#000000'
+        primaryColor: '#4a9eff',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#66b3ff',
+        lineColor: '#66b3ff',
+        secondaryColor: '#2d3748',
+        secondaryTextColor: '#ffffff',
+        tertiaryColor: '#38a169',
+        tertiaryTextColor: '#ffffff',
+        quaternaryColor: '#d69e2e',
+        quaternaryTextColor: '#000000',
+        background: '#1a202c',
+        mainBkg: '#2d3748',
+        secondaryBkg: '#4a5568',
+        tertiaryBkg: '#38a169'
       }
     });
   </script>
   <style>
     body {
-      background-color: white;
+      background-color: #1a202c;
+      color: #e2e8f0;
       font-family: Arial, sans-serif;
       margin: 20px;
+    }
+    
+    h3 {
+      color: #4a9eff;
+      border-bottom: 1px solid #4a5568;
+      padding-bottom: 5px;
+    }
+    
+    ul, ol {
+      background-color: #2d3748;
+      padding: 15px;
+      border-radius: 5px;
+      border-left: 4px solid #4a9eff;
+    }
+    
+    li {
+      margin-bottom: 8px;
+    }
+    
+    strong {
+      color: #63b3ed;
     }
   </style>
 </head>
@@ -43,6 +69,7 @@ flowchart TD
         GSR[git_storage repo]
         APT[appium-tests/]
         SBT[sbsaa-tests/]
+        RD[radiator-data/]
     end
 
     subgraph Runner [Self-Hosted Runner WIN10]
@@ -52,12 +79,19 @@ flowchart TD
         UH[History Manager]
         AO[Allure Generator]
         ADB[ADB Bridge]
+        TR[Test Radiator]
     end
 
     subgraph Device [Android Device]
         AOS[Android OS]
         SA[Weather App]
         ADBD[ADB Daemon]
+    end
+
+    subgraph Radiator [Test Radiator Dashboard]
+        RDB[Radiator Database]
+        RUI[Dashboard UI]
+        RAPI[Status API]
     end
 
     GHA -->|Trigger| SH
@@ -70,32 +104,51 @@ flowchart TD
     UH -->|Process| AO
     AO -->|Generate| GHP
     AO -->|Save History| GSR
+    TR -->|Update Status| RDB
+    TR -->|Store Data| RD
+    RDB -->|Real-time Updates| RUI
+    RUI -->|Display| GHP
+    RAPI -->|Serve Status| RUI
 
-    style GitHub fill:#f9f
-    style Storage fill:#ffe
-    style Runner fill:#eef
-    style Device fill:#dfd
+    style GitHub fill:#4a9eff,color:#fff
+    style Storage fill:#d69e2e,color:#000
+    style Runner fill:#38a169,color:#fff
+    style Device fill:#38a169,color:#fff
+    style Radiator fill:#805ad5,color:#fff
   </div>
 
   <h3>Key Architecture Features:</h3>
   <ul>
     <li><strong>Git Storage Database:</strong> Centralized history persistence across multiple projects</li>
-    <li><strong>Project Isolation:</strong> Separate namespaces (appium-tests, sbsaa-tests) prevent data contamination</li>
+    <li><strong>Project Isolation:</strong> Separate namespaces (appium-tests, sbsaa-tests, radiator-data) prevent data contamination</li>
     <li><strong>Trigger Control:</strong> Manual execution or commit-based with [test] parameter</li>
     <li><strong>History Management:</strong> Pre/post processing to handle Allure's malformed data injection</li>
     <li><strong>Real Device Testing:</strong> Hardware-accelerated execution with ADB shell support</li>
     <li><strong>Scalable Reporting:</strong> Automated deployment to GitHub Pages with trend analysis</li>
+    <li><strong>Test Radiator Dashboard:</strong> Real-time monitoring and visualization of test execution status across all projects</li>
+    <li><strong>Radiator Database:</strong> Centralized status tracking with API endpoints for dashboard integration</li>
   </ul>
 
   <h3>Execution Flow:</h3>
   <ol>
     <li>Load previous test history from git storage</li>
+    <li>Initialize test radiator monitoring</li>
     <li>Prepare history files for current test run</li>
     <li>Execute pytest test suite against real Android device</li>
+    <li>Update radiator dashboard with real-time test status</li>
     <li>Generate Allure HTML report with historical trends</li>
     <li>Clean up malformed data that Allure injects</li>
-    <li>Save updated history back to git storage</li>
-    <li>Deploy final report to GitHub Pages</li>
+    <li>Save updated history and radiator data back to git storage</li>
+    <li>Deploy final report and radiator dashboard to GitHub Pages</li>
   </ol>
+
+  <h3>Radiator Dashboard Features:</h3>
+  <ul>
+    <li><strong>Real-time Status:</strong> Live updates of test execution progress across all projects</li>
+    <li><strong>Historical Trends:</strong> Visual representation of test success rates and performance over time</li>
+    <li><strong>Multi-Project View:</strong> Consolidated dashboard showing status of appium-tests, sbsaa-tests, and other projects</li>
+    <li><strong>API Integration:</strong> RESTful endpoints for external monitoring tools and integrations</li>
+    <li><strong>Dark Mode UI:</strong> Modern, eye-friendly interface optimized for continuous monitoring</li>
+  </ul>
 </body>
 </html>
