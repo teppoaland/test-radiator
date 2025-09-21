@@ -5,21 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Radiator Dashboard</title>
     <link rel="stylesheet" href="css/styles.css" />
+    <style>
+        .app-table {
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .app-table-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1.5fr;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #e9ecef;
+            border-radius: 8px 8px 0 0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .app-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1.5fr;
+            gap: 12px;
+            padding: 10px 16px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .app-row:last-child {
+            border-bottom: none;
+        }
+
+        .status-available {
+            color: #28a745;
+            font-weight: 500;
+        }
+
+        .status-failed {
+            color: #dc3545;
+            font-weight: 500;
+        }
+    </style>
 </head>
-<script>
-    // FormatDate function moved to global scope
-    function formatDate(date) {
-        return date.getDate().toString().padStart(2, '0') + '/' +
-            (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
-            date.getFullYear() + ' ' +
-            date.getHours().toString().padStart(2, '0') + ':' +
-            date.getMinutes().toString().padStart(2, '0');
-    }
-</script>
 <body>
     <div class="container">
         <header>
-            <h1>📊 Test Radiator Dashboard v1.</h1>
+            <h1>📊 Test Radiator Dashboard v2</h1>
             <p class="last-updated">Last updated: <span id="update-time"></span></p>
         </header>
         
@@ -38,37 +68,44 @@
     </button>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const projectsContainer = document.getElementById('projects');
-            const refreshBtn = document.getElementById('refresh-btn');
-            const updateTimeElement = document.getElementById('update-time');
-            
-            // JS to add version fetching
-            async function fetchProjectAppInfo(projectName) {
-                try {
-                    if (projectName === 'app-availability-check') {
-                    // For app availability testing, fetch installation results instead
+        // FormatDate function in global scope
+        function formatDate(date) {
+            return date.getDate().toString().padStart(2, '0') + '/' +
+                (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                date.getFullYear() + ' ' +
+                date.getHours().toString().padStart(2, '0') + ':' +
+                date.getMinutes().toString().padStart(2, '0');
+        }
+
+        // Fetch project app info
+        async function fetchProjectAppInfo(projectName) {
+            try {
+                if (projectName === 'app-availability-check') {
                     const response = await fetch(`https://raw.githubusercontent.com/teppoaland/git_storage/main/allure-history/${projectName}/installation_results.json`);
                     if (response.ok) {
                         const installData = await response.json();
                         const successCount = installData.filter(app => app.installation_status.includes('Success')).length;
                         return `${successCount}/${installData.length} apps`;
                     }
-                    } else {
-                    // For single-app projects, show version as before
+                } else {
                     const response = await fetch(`https://raw.githubusercontent.com/teppoaland/git_storage/main/allure-history/${projectName}/app_version.json`);
                     if (response.ok) {
                         const versionData = await response.json();
                         return versionData.tested_version;
                     }
-                    }
-                } catch (error) {
-                    console.log('App info not available for', projectName);
                 }
-                return 'N/A';
+            } catch (error) {
+                console.log('App info not available for', projectName);
             }
+            return 'N/A';
+        }
 
-            // Set initial update time (moved inside DOMContentLoaded)
+        document.addEventListener('DOMContentLoaded', function() {
+            const projectsContainer = document.getElementById('projects');
+            const refreshBtn = document.getElementById('refresh-btn');
+            const updateTimeElement = document.getElementById('update-time');
+
+            // Set initial update time
             updateTimeElement.textContent = formatDate(new Date());
 
             // Load projects initially
@@ -110,116 +147,162 @@
                         projectHeader.appendChild(reportLink);
                         card.appendChild(projectHeader);
                         
-                        // Summary section
-                        const summary = document.createElement("div");
-                        summary.className = "summary";
-                        summary.innerHTML = `
-                            <div class="summary-item">
-                                <div class="summary-value passed">0</div>
-                                <div class="summary-label">Passed</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-value failed">0</div>
-                                <div class="summary-label">Failed</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-value broken">0</div>
-                                <div class="summary-label">Broken</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-value skipped">0</div>
-                                <div class="summary-label">Skipped</div>
-                            </div>
-                        `;
-                        card.appendChild(summary);
-                        
-                        // Trend title
-                        const trendTitle = document.createElement("h3");
-                        trendTitle.className = "trend-title";
-                        trendTitle.textContent = "Last 10 Builds";
-                        card.appendChild(trendTitle);
-                        
-                        // Trend container
-                        const trendDiv = document.createElement("div");
-                        trendDiv.className = "trend";
-                        card.appendChild(trendDiv);
-                        
-                        // Project footer for additional info
-                        const projectFooter = document.createElement("div");
-                        projectFooter.className = "project-footer";
-                        projectFooter.innerHTML = `  <span>Build: <span class="build-id">Loading...</span></span>
-    <span>Version: <span class="app-version">Loading...</span></span>
-`;
-                        card.appendChild(projectFooter);
-                        
-                        projectsContainer.appendChild(card);
-                        
-                        try {
-                            const dataRes = await fetch(project.dataUrl);
-                            if (!dataRes.ok) throw new Error("Failed to load data " + project.dataUrl);
-                            const data = await dataRes.json();
+                        // Check if this is the App Availability Check project
+                        if (project.name === "App Availability Check") {
+                            // Create app-specific table instead of summary
+                            const appTable = document.createElement("div");
+                            appTable.className = "app-table";
+                            appTable.innerHTML = `
+                                <div class="app-table-header">
+                                    <span>App Name</span>
+                                    <span>Version</span>
+                                    <span>Status</span>
+                                </div>
+                                <div class="app-table-body">
+                                    <div class="loading-apps">Loading app status...</div>
+                                </div>
+                            `;
+                            card.appendChild(appTable);
                             
-                            if (Array.isArray(data) && data.length > 0) {
-                                const latest = data.slice(-10);
+                            // Fetch and display individual app data
+                            try {
+                                const installResponse = await fetch(`https://raw.githubusercontent.com/teppoaland/git_storage/main/allure-history/app-availability-check/installation_results.json`);
+                                if (installResponse.ok) {
+                                    const installData = await installResponse.json();
+                                    const tableBody = appTable.querySelector('.app-table-body');
+                                    tableBody.innerHTML = '';
+                                    
+                                    installData.forEach(app => {
+                                        const row = document.createElement("div");
+                                        row.className = "app-row";
+                                        
+                                        const statusClass = app.installation_status.includes('Success') ? 'status-available' : 'status-failed';
+                                        const statusText = app.installation_status.includes('Success') ? 'Available' : 'Issues - Check app status';
+                                        
+                                        row.innerHTML = `
+                                            <span class="app-name">${app.app_name}</span>
+                                            <span class="app-version">${app.installed_version}</span>
+                                            <span class="app-status ${statusClass}">${statusText}</span>
+                                        `;
+                                        tableBody.appendChild(row);
+                                    });
+                                }
+                            } catch (error) {
+                                appTable.querySelector('.app-table-body').innerHTML = '<div class="error">Failed to load app data</div>';
+                            }
+                            
+                        } else {
+                            // Use existing summary format for other projects
+                            const summary = document.createElement("div");
+                            summary.className = "summary";
+                            summary.innerHTML = `
+                                <div class="summary-item">
+                                    <div class="summary-value passed">0</div>
+                                    <div class="summary-label">Passed</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-value failed">0</div>
+                                    <div class="summary-label">Failed</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-value broken">0</div>
+                                    <div class="summary-label">Broken</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-value skipped">0</div>
+                                    <div class="summary-label">Skipped</div>
+                                </div>
+                            `;
+                            card.appendChild(summary);
+                            
+                            // Trend title
+                            const trendTitle = document.createElement("h3");
+                            trendTitle.className = "trend-title";
+                            trendTitle.textContent = "Last 10 Builds";
+                            card.appendChild(trendTitle);
+                            
+                            // Trend container
+                            const trendDiv = document.createElement("div");
+                            trendDiv.className = "trend";
+                            card.appendChild(trendDiv);
+                            
+                            // Project footer for additional info
+                            const projectFooter = document.createElement("div");
+                            projectFooter.className = "project-footer";
+                            projectFooter.innerHTML = `
+                                <span>Build: <span class="build-id">Loading...</span></span>
+                                <span>Version: <span class="app-version">Loading...</span></span>
+                            `;
+                            card.appendChild(projectFooter);
+                            
+                            try {
+                                const dataRes = await fetch(project.dataUrl);
+                                if (!dataRes.ok) throw new Error("Failed to load data " + project.dataUrl);
+                                const data = await dataRes.json();
                                 
-                                // Update summary from newest build
-                                const newest = latest[latest.length - 1]?.data || {};
-                                const passed = newest.passed || 0;
-                                const failed = newest.failed || 0;
-                                const broken = newest.broken || 0;
-                                const skipped = newest.skipped || 0;
-                                const total = passed + failed + broken + skipped;
-                                
-                                summary.querySelector('.summary-value.passed').textContent = passed;
-                                summary.querySelector('.summary-value.failed').textContent = failed;
-                                summary.querySelector('.summary-value.broken').textContent = broken;
-                                summary.querySelector('.summary-value.skipped').textContent = skipped;
-                                
-                                // Update build ID in footer (existing code)
-                                const buildId = latest[latest.length - 1]?.buildOrder || "N/A";
-                                projectFooter.querySelector('.build-id').textContent = buildId;
+                                if (Array.isArray(data) && data.length > 0) {
+                                    const latest = data.slice(-10);
+                                    
+                                    // Update summary from newest build
+                                    const newest = latest[latest.length - 1]?.data || {};
+                                    const passed = newest.passed || 0;
+                                    const failed = newest.failed || 0;
+                                    const broken = newest.broken || 0;
+                                    const skipped = newest.skipped || 0;
+                                    
+                                    summary.querySelector('.summary-value.passed').textContent = passed;
+                                    summary.querySelector('.summary-value.failed').textContent = failed;
+                                    summary.querySelector('.summary-value.broken').textContent = broken;
+                                    summary.querySelector('.summary-value.skipped').textContent = skipped;
+                                    
+                                    // Update build ID in footer
+                                    const buildId = latest[latest.length - 1]?.buildOrder || "N/A";
+                                    projectFooter.querySelector('.build-id').textContent = buildId;
 
-                                // Add this new code to fetch and display version
-                                const projectName = project.dataUrl.includes('sbsaa-tests') ? 'sbsaa-tests' : 
-                                                    project.dataUrl.includes('appium-tests') ? 'appium-tests' :
-                                                    project.dataUrl.includes('app-availability-check') ? 'app-availability-check' : 'unknown';
-                                const appVersion = await fetchProjectAppInfo(projectName);
-                                projectFooter.querySelector('.app-version').textContent = appVersion;
-                                
+                                    // Fetch and display version
+                                    const projectName = project.dataUrl.includes('sbsaa-tests') ? 'sbsaa-tests' : 
+                                                       project.dataUrl.includes('appium-tests') ? 'appium-tests' :
+                                                       project.dataUrl.includes('app-availability-check') ? 'app-availability-check' : 'unknown';
+                                    const appVersion = await fetchProjectAppInfo(projectName);
+                                    projectFooter.querySelector('.app-version').textContent = appVersion;
+                                    
                                     // Create trend squares
-                                latest.forEach(build => {
-                                    const stats = build?.data || {};
-                                    const buildName = build?.build || "Unknown build";
-                                    
-                                    let status = "passed";
-                                    if (stats.failed > 0) status = "failed";
-                                    else if (stats.broken > 0) status = "broken";
-                                    else if (stats.skipped > 0) status = "skipped";
-                                    
-                                    const box = document.createElement("div");
-                                    box.className = `status-box ${status}`;
-                                    
-                                    // Add tooltip
-                                    const tooltip = document.createElement("div");
-                                    tooltip.className = "status-tooltip";
-                                    tooltip.textContent = `${buildName}: ✔${stats.passed || 0} ❌${stats.failed || 0} ⚠${stats.broken || 0} ⏭${stats.skipped || 0}`;
-                                    box.appendChild(tooltip);
-                                    
-                                    trendDiv.appendChild(box);
-                                });
-                            } else {
+                                    latest.forEach(build => {
+                                        const stats = build?.data || {};
+                                        const buildName = build?.build || "Unknown build";
+                                        
+                                        let status = "passed";
+                                        if (stats.failed > 0) status = "failed";
+                                        else if (stats.broken > 0) status = "broken";
+                                        else if (stats.skipped > 0) status = "skipped";
+                                        
+                                        const box = document.createElement("div");
+                                        box.className = `status-box ${status}`;
+                                        
+                                        // Add tooltip
+                                        const tooltip = document.createElement("div");
+                                        tooltip.className = "status-tooltip";
+                                        tooltip.textContent = `${buildName}: ✔${stats.passed || 0} ❌${stats.failed || 0} ⚠${stats.broken || 0} ⏭${stats.skipped || 0}`;
+                                        box.appendChild(tooltip);
+                                        
+                                        trendDiv.appendChild(box);
+                                    });
+                                } else {
+                                    const errorMsg = document.createElement("div");
+                                    errorMsg.className = "error";
+                                    errorMsg.textContent = "No trend data available";
+                                    card.appendChild(errorMsg);
+                                }
+                            } catch (e) {
+                                console.error(e);
                                 const errorMsg = document.createElement("div");
                                 errorMsg.className = "error";
-                                errorMsg.textContent = "No trend data available";
+                                errorMsg.textContent = "Failed to load trend data";
                                 card.appendChild(errorMsg);
                             }
-                        } catch (e) {
-                            console.error(e);
-                            const errorMsg = document.createElement("div");
-                            errorMsg.className = "error";
-                            errorMsg.textContent = "Failed to load trend data";
-                            card.appendChild(errorMsg);
                         }
+                        
+                        projectsContainer.appendChild(card);
                     }
                     
                     // Update the last updated time
