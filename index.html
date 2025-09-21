@@ -148,7 +148,7 @@
                         card.appendChild(projectHeader);
                         
                         // Check if this is the App Availability Check project
-                        if (project.name === "App Availability Check") {
+                        if (project.name.includes("Availability")) {
                             // Create app-specific table instead of summary
                             const appTable = document.createElement("div");
                             appTable.className = "app-table";

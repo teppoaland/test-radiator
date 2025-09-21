@@ -6,7 +6,7 @@
       "reportUrl": "https://teppoaland.github.io/sbsaa/"
     },
     {
-      "name": "App google Play Availability & Installation Check", 
+      "name": "App Google Play Availability & Installation Check", 
       "dataUrl": "https://raw.githubusercontent.com/teppoaland/git_storage/main/allure-history/app-availability-check/history-trend.json",
       "reportUrl": "https://teppoaland.github.io/app_availability_check/"
     }
