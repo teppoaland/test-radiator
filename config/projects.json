@@ -1,12 +1,12 @@
 {
   "projects": [
     {
-      "name": "SBSAA Production",
+      "name": "Sebitti Sää Android App Tests",
       "dataUrl": "https://raw.githubusercontent.com/teppoaland/git_storage/main/allure-history/sbsaa-tests/history-trend.json",
       "reportUrl": "https://teppoaland.github.io/sbsaa/"
     },
     {
-      "name": "App Availability Check", 
+      "name": "App google Play Availability Check", 
       "dataUrl": "https://raw.githubusercontent.com/teppoaland/git_storage/main/allure-history/app-availability-check/history-trend.json",
       "reportUrl": "https://teppoaland.github.io/app_availability_check/"
     }
