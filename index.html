@@ -6,6 +6,16 @@
     <title>Test Radiator Dashboard</title>
     <link rel="stylesheet" href="css/styles.css" />
 </head>
+<script>
+    // FormatDate function moved to global scope
+    function formatDate(date) {
+        return date.getDate().toString().padStart(2, '0') + '/' +
+            (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
+            date.getFullYear() + ' ' +
+            date.getHours().toString().padStart(2, '0') + ':' +
+            date.getMinutes().toString().padStart(2, '0');
+    }
+</script>
 <body>
     <div class="container">
         <header>
@@ -171,7 +181,8 @@
 
                                 // Add this new code to fetch and display version
                                 const projectName = project.dataUrl.includes('sbsaa-tests') ? 'sbsaa-tests' : 
-                                                project.dataUrl.includes('appium-tests') ? 'appium-tests' : 'unknown';
+                                                    project.dataUrl.includes('appium-tests') ? 'appium-tests' :
+                                                    project.dataUrl.includes('app-availability-check') ? 'app-availability-check' : 'unknown';
                                 const appVersion = await fetchProjectAppInfo(projectName);
                                 projectFooter.querySelector('.app-version').textContent = appVersion;
                                 
