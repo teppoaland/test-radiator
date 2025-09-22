@@ -94,11 +94,19 @@ flowchart TD
         GHP[GitHub Pages]
     end
 
+    subgraph Azure [Azure DevOps]
+        ADO[Azure DevOps Project]
+        WI[Work Items]
+        PAT[PAT Authentication]
+        BUGS[Auto-Generated Bugs]
+    end
+
     subgraph Storage [Git Storage]
         GSR[git_storage repo]
         APT[appium-tests/]
         SBT[sbsaa-tests/]
         RD[radiator-data/]
+        MAP[test-mappings/]
     end
 
     subgraph Runner [Self-Hosted Runner WIN10]
@@ -109,6 +117,8 @@ flowchart TD
         AO[Allure Generator]
         ADB[ADB Bridge]
         TR[Test Radiator]
+        AZ[Azure DevOps Client]
+        HOOKS[Pytest Hooks]
     end
 
     subgraph Device [Android Device]
@@ -121,53 +131,77 @@ flowchart TD
         RDB[Radiator Database]
         RUI[Dashboard UI]
         RAPI[Status API]
+        FC[Flowchart View]
     end
 
     GHA -->|Trigger| SH
     SH -->|Clone| GHR
     SH -->|Load History| GSR
+    SH -->|Load Test Mappings| MAP
     SH -->|Run Tests| AS
     AS -->|Control| ADB
     ADB -->|Connect| ADBD
     ADBD -->|Execute| SA
+    
+    HOOKS -->|Test Results| AZ
+    AZ -->|PAT Auth| PAT
+    PAT -->|Authenticate| ADO
+    AZ -->|Update Work Items| WI
+    AZ -->|Create Bugs on Fail| BUGS
+    WI -->|State Transitions| ADO
+    
     UH -->|Process| AO
     AO -->|Generate| GHP
     AO -->|Save History| GSR
+    AZ -->|Save Mappings| MAP
+    
     TR -->|Update Status| RDB
     TR -->|Store Data| RD
     RDB -->|Real-time Updates| RUI
     RUI -->|Display| GHP
     RAPI -->|Serve Status| RUI
+    FC -->|Architecture View| RUI
 
     style GitHub fill:#4a9eff,color:#fff
     style Storage fill:#d69e2e,color:#000
     style Runner fill:#38a169,color:#fff
     style Device fill:#38a169,color:#fff
     style Radiator fill:#805ad5,color:#fff
+    style Azure fill:#0078d4,color:#fff
   </div>
 
   <h3>Key Architecture Features:</h3>
   <ul>
     <li><strong>Git Storage Database:</strong> Centralized history persistence across multiple projects</li>
-    <li><strong>Project Isolation:</strong> Separate namespaces (appium-tests, sbsaa-tests, radiator-data) prevent data contamination</li>
+    <li><strong>Project Isolation:</strong> Separate namespaces (appium-tests, sbsaa-tests, radiator-data, test-mappings) prevent data contamination</li>
+    <li><strong>Azure DevOps Integration:</strong> Full work item lifecycle management with automated state transitions</li>
+    <li><strong>PAT Authentication:</strong> Secure token-based authentication with Azure DevOps using GitHub Secrets</li>
+    <li><strong>Pytest Hook System:</strong> Automatic test result reporting to Azure DevOps via custom pytest hooks</li>
+    <li><strong>Test-to-Work-Item Mapping:</strong> JSON-based mapping system linking test functions to Azure DevOps work items</li>
     <li><strong>Trigger Control:</strong> Manual execution or commit-based with [test] parameter</li>
     <li><strong>History Management:</strong> Pre/post processing to handle Allure's malformed data injection</li>
     <li><strong>Real Device Testing:</strong> Hardware-accelerated execution with ADB shell support</li>
     <li><strong>Scalable Reporting:</strong> Automated deployment to GitHub Pages with trend analysis</li>
-    <li><strong>Test Radiator Dashboard:</strong> Real-time monitoring and visualization of test execution status across all projects</li>
-    <li><strong>Radiator Database:</strong> Centralized status tracking with API endpoints for dashboard integration</li>
+    <li><strong>Test Radiator Dashboard:</strong> Real-time monitoring and visualization with architecture flowchart view</li>
+    <li><strong>Automated Bug Creation:</strong> Failed tests automatically create linked bug work items in Azure DevOps</li>
   </ul>
 
   <h3>Execution Flow:</h3>
   <ol>
     <li>Load previous test history from git storage</li>
+    <li>Load test-to-work-item mappings from centralized storage</li>
+    <li>Initialize Azure DevOps client with PAT authentication</li>
     <li>Initialize test radiator monitoring</li>
     <li>Prepare history files for current test run</li>
     <li>Execute pytest test suite against real Android device</li>
+    <li>Pytest hooks automatically capture test results and send to Azure DevOps</li>
+    <li>Update Azure DevOps work items with test execution status (Design → Closed for passing tests)</li>
+    <li>Create bugs in Azure DevOps for any failed tests with detailed error information</li>
     <li>Update radiator dashboard with real-time test status</li>
     <li>Generate Allure HTML report with historical trends</li>
     <li>Clean up malformed data that Allure injects</li>
     <li>Save updated history and radiator data back to git storage</li>
+    <li>Save updated test mappings for future runs</li>
     <li>Deploy final report and radiator dashboard to GitHub Pages</li>
   </ol>
 
