@@ -39,18 +39,15 @@
       margin: 20px;
     }
     
-    /* Force dark mode for all elements */
     * {
       color-scheme: dark !important;
     }
     
-    /* Override Chrome's forced styles */
     .mermaid * {
       background-color: transparent !important;
       color: inherit !important;
     }
     
-    /* Ensure mermaid diagram respects dark theme */
     .mermaid {
       background-color: #1a202c !important;
       color: #ffffff !important;
@@ -79,7 +76,6 @@
       color: #63b3ed !important;
     }
     
-    /* Force override for any auto-styling */
     svg * {
       color: inherit !important;
     }
@@ -87,13 +83,8 @@
 </head>
 <body>
   <div class="mermaid">
-flowchart TD
-    subgraph GitHub [GitHub Cloud]
-        GHA[GitHub Actions]
-        GHR[sbsaa Repository]
-        GHP[GitHub Pages]
-    end
-
+flowchart TB
+    %% --- Azure Section ---
     subgraph Azure [Azure DevOps]
         ADO[Azure DevOps Project]
         WI[Work Items]
@@ -101,6 +92,14 @@ flowchart TD
         BUGS[Auto-Generated Bugs]
     end
 
+    %% --- GitHub ---
+    subgraph GitHub [GitHub Cloud]
+        GHR[sbsaa Repository]
+        GHA[GitHub Actions]
+        GHP[GitHub Pages]
+    end
+
+    %% --- Storage ---
     subgraph Storage [Git Storage]
         GSR[git_storage repo]
         APT[appium-tests/]
@@ -109,6 +108,7 @@ flowchart TD
         MAP[test-mappings/]
     end
 
+    %% --- Runner ---
     subgraph Runner [Self-Hosted Runner WIN10]
         SH[Actions Runner]
         AS[Appium Server]
@@ -121,12 +121,13 @@ flowchart TD
         HOOKS[Pytest Hooks]
     end
 
+    %% --- Device ---
     subgraph Device [Android Device]
-        AOS[Android OS]
-        SA[Weather App]
         ADBD[ADB Daemon]
+        SA[Weather App]
     end
 
+    %% --- Radiator ---
     subgraph Radiator [Test Radiator Dashboard]
         RDB[Radiator Database]
         RUI[Dashboard UI]
@@ -134,34 +135,29 @@ flowchart TD
         FC[Flowchart View]
     end
 
-    GHA -->|Trigger| SH
-    SH -->|Clone| GHR
-    SH -->|Load History| GSR
-    SH -->|Load Test Mappings| MAP
-    SH -->|Run Tests| AS
-    AS -->|Control| ADB
-    ADB -->|Connect| ADBD
-    ADBD -->|Execute| SA
-    
-    HOOKS -->|Test Results| AZ
-    AZ -->|PAT Auth| PAT
-    PAT -->|Authenticate| ADO
-    AZ -->|Update Work Items| WI
-    AZ -->|Create Bugs on Fail| BUGS
-    WI -->|State Transitions| ADO
-    
-    UH -->|Process| AO
-    AO -->|Generate| GHP
-    AO -->|Save History| GSR
-    AZ -->|Save Mappings| MAP
-    
-    TR -->|Update Status| RDB
-    TR -->|Store Data| RD
-    RDB -->|Real-time Updates| RUI
-    RUI -->|Display| GHP
-    RAPI -->|Serve Status| RUI
-    FC -->|Architecture View| RUI
+    %% --- Connections (layered vertically) ---
+    GHA --> SH
+    SH --> GHR
+    SH --> GSR
+    SH --> MAP
+    SH --> AS
+    AS --> ADB
+    ADB --> ADBD
+    ADBD --> SA
 
+    HOOKS --> AZ
+    AZ --> PAT --> ADO
+    AZ --> WI --> BUGS
+
+    UH --> AO
+    AO --> GHP
+    AO --> GSR
+
+    TR --> RDB --> RUI --> GHP
+    RUI --> RAPI
+    RUI --> FC
+
+    %% Styling
     style GitHub fill:#4a9eff,color:#fff
     style Storage fill:#d69e2e,color:#000
     style Runner fill:#38a169,color:#fff
