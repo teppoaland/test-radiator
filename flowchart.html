@@ -8,25 +8,80 @@
       theme: 'dark',
       themeVariables: {
         fontFamily: 'Arial',
-        fontSize: '13px',
-        primaryColor: '#f9f',
-        primaryTextColor: '#000000',
-        primaryBorderColor: '#333',
-        lineColor: '#333',
-        secondaryColor: '#eef',
-        secondaryTextColor: '#000000',
-        tertiaryColor: '#dfd',
-        tertiaryTextColor: '#000000',
-        quaternaryColor: '#ffe',
-        quaternaryTextColor: '#000000'
+        fontSize: '14px',
+        primaryColor: '#4a9eff',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#66b3ff',
+        lineColor: '#66b3ff',
+        secondaryColor: '#2d3748',
+        secondaryTextColor: '#ffffff',
+        tertiaryColor: '#38a169',
+        tertiaryTextColor: '#ffffff',
+        quaternaryColor: '#d69e2e',
+        quaternaryTextColor: '#ffffff',
+        background: '#1a202c',
+        mainBkg: '#2d3748',
+        secondaryBkg: '#4a5568',
+        tertiaryBkg: '#38a169',
+        cScale0: '#4a9eff',
+        cScale1: '#38a169', 
+        cScale2: '#d69e2e',
+        cScale3: '#805ad5',
+        cScale4: '#2d3748'
       }
     });
   </script>
   <style>
     body {
-      background-color: white;
+      background-color: #1a202c !important;
+      color: #e2e8f0 !important;
       font-family: Arial, sans-serif;
       margin: 20px;
+    }
+    
+    /* Force dark mode for all elements */
+    * {
+      color-scheme: dark !important;
+    }
+    
+    /* Override Chrome's forced styles */
+    .mermaid * {
+      background-color: transparent !important;
+      color: inherit !important;
+    }
+    
+    /* Ensure mermaid diagram respects dark theme */
+    .mermaid {
+      background-color: #1a202c !important;
+      color: #ffffff !important;
+    }
+    
+    h3 {
+      color: #4a9eff !important;
+      border-bottom: 1px solid #4a5568;
+      padding-bottom: 5px;
+    }
+    
+    ul, ol {
+      background-color: #2d3748 !important;
+      color: #e2e8f0 !important;
+      padding: 15px;
+      border-radius: 5px;
+      border-left: 4px solid #4a9eff;
+    }
+    
+    li {
+      margin-bottom: 8px;
+      color: #e2e8f0 !important;
+    }
+    
+    strong {
+      color: #63b3ed !important;
+    }
+    
+    /* Force override for any auto-styling */
+    svg * {
+      color: inherit !important;
     }
   </style>
 </head>
@@ -43,8 +98,8 @@ flowchart TD
     end
 
     subgraph GitHub [GitHub Cloud]
-        GHR[sbsaa Repository]
         GHA[GitHub Actions]
+        GHR[sbsaa Repository]
         GHP[GitHub Pages]
     end
 
@@ -81,75 +136,76 @@ flowchart TD
         FC[Flowchart View]
     end
 
-    %% Main execution flow - vertical layout
-    ADP -->|"Manual trigger"| GHR
-    GHR -->|"Push [test] commit"| GHA
-    GHA -->|"Start workflow"| SH
-    SH -->|"Load history"| GSR
-    SH -->|"Load mappings"| MAP
-    SH -->|"Execute tests"| AS
-    AS -->|"Control device"| ADB
-    ADB -->|"Connect to"| ADBD
-    ADBD -->|"Test app"| SA
-    
-    %% Pytest hooks and Azure integration
-    HOOKS -->|"Capture results"| AZ
-    AZ -->|"Authenticate"| PAT
-    PAT -->|"Connect to"| ADO
-    AZ -->|"Update work items"| WI
-    AZ -->|"Create bugs on fail"| BUGS
-    
-    %% Report generation and storage
-    PY -->|"Process results"| UH
-    UH -->|"Generate reports"| AO
-    AO -->|"Deploy to"| GHP
-    AO -->|"Save history"| GSR
-    AZ -->|"Update mappings"| MAP
-    
-    %% Radiator integration
-    TR -->|"Real-time status"| RDB
-    TR -->|"Store data"| RD
-    RDB -->|"Update dashboard"| RUI
-    RUI -->|"Display on"| GHP
-    RAPI -->|"Serve status"| RUI
-    FC -->|"Architecture view"| RUI
-
-    %% Agent hosting
+    ADP -->|"Push [test] commit"| GHR
     ADA -->|"Hosts"| ADP
+    GHR -->|"Trigger on [test]"| GHA
+    GHA -->|Start workflow| SH
+    SH -->|Clone| GHR
+    SH -->|Load History| GSR
+    SH -->|Load Test Mappings| MAP
+    SH -->|Run Tests| AS
+    AS -->|Control| ADB
+    ADB -->|Connect| ADBD
+    ADBD -->|Execute| SA
+    
+    HOOKS -->|Test Results| AZ
+    AZ -->|PAT Auth| PAT
+    PAT -->|Authenticate| ADO
+    AZ -->|Update Work Items| WI
+    AZ -->|Create Bugs on Fail| BUGS
+    WI -->|State Transitions| ADO
+    
+    UH -->|Process| AO
+    AO -->|Generate| GHP
+    AO -->|Save History| GSR
+    AZ -->|Save Mappings| MAP
+    
+    TR -->|Update Status| RDB
+    TR -->|Store Data| RD
+    RDB -->|Real-time Updates| RUI
+    RUI -->|Display| GHP
+    RAPI -->|Serve Status| RUI
+    FC -->|Architecture View| RUI
 
-    style Azure fill:#0078d4,color:#fff
     style GitHub fill:#4a9eff,color:#fff
     style Storage fill:#d69e2e,color:#fff
     style Runner fill:#38a169,color:#fff
-    style Device fill:#2d3748,color:#fff
+    style Device fill:#38a169,color:#fff
     style Radiator fill:#805ad5,color:#fff
+    style Azure fill:#0078d4,color:#fff
   </div>
 
-  <h3>Hybrid CI/CD Architecture Features:</h3>
+  <h3>Key Architecture Features:</h3>
   <ul>
-    <li><strong>Dual Trigger System:</strong> Manual execution via Azure DevOps or automatic via GitHub commits with [test]</li>
-    <li><strong>Azure Integration:</strong> Test Cases automatically updated with execution results and status transitions</li>
+    <li><strong>Hybrid Trigger System:</strong> Manual execution via Azure DevOps Pipeline or automatic via GitHub commits with [test]</li>
+    <li><strong>Azure Pipeline Integration:</strong> Self-hosted agent can manually trigger test execution by pushing [test] commits to GitHub</li>
     <li><strong>Git Storage Database:</strong> Centralized history persistence across multiple projects</li>
-    <li><strong>Project Isolation:</strong> Separate namespaces (appium-tests, sbsaa-tests) prevent data contamination</li>
-    <li><strong>Version Tracking:</strong> App version information stored and tracked across test runs</li>
-    <li><strong>Cross-Platform Agents:</strong> Azure self-hosted agent triggers GitHub Actions runner</li>
+    <li><strong>Project Isolation:</strong> Separate namespaces (appium-tests, sbsaa-tests, radiator-data, test-mappings) prevent data contamination</li>
+    <li><strong>Azure DevOps Integration:</strong> Full work item lifecycle management with automated state transitions</li>
+    <li><strong>PAT Authentication:</strong> Secure token-based authentication with Azure DevOps using GitHub Secrets</li>
+    <li><strong>Pytest Hook System:</strong> Automatic test result reporting to Azure DevOps via custom pytest hooks</li>
+    <li><strong>Test-to-Work-Item Mapping:</strong> JSON-based mapping system linking test functions to Azure DevOps work items</li>
+    <li><strong>History Management:</strong> Pre/post processing to handle Allure's malformed data injection</li>
     <li><strong>Real Device Testing:</strong> Hardware-accelerated execution with ADB shell support</li>
-    <li><strong>Comprehensive Reporting:</strong> Allure reports with Azure DevOps traceability</li>
+    <li><strong>Scalable Reporting:</strong> Automated deployment to GitHub Pages with trend analysis</li>
+    <li><strong>Test Radiator Dashboard:</strong> Real-time monitoring and visualization with architecture flowchart view</li>
+    <li><strong>Automated Bug Creation:</strong> Failed tests automatically create linked bug work items in Azure DevOps</li>
   </ul>
 
   <h3>Execution Flow Options:</h3>
   
-  <h4>Option 1: Azure DevOps Trigger</h4>
+  <h4>Option 1: Azure DevOps Manual Trigger</h4>
   <ol>
-    <li>Manually run Azure DevOps pipeline</li>
-    <li>Pipeline pushes empty commit with [test] to GitHub repository</li>
-    <li>GitHub Actions detects [test] keyword and triggers workflow</li>
+    <li>Manually run Azure DevOps pipeline from the web interface</li>
+    <li>Self-hosted agent executes pipeline script</li>
+    <li>Pipeline pushes empty commit with [test] keyword to GitHub repository</li>
+    <li>GitHub Actions detects [test] in commit message and triggers workflow</li>
     <li>Continue with standard test execution flow</li>
   </ol>
 
   <h4>Option 2: GitHub Direct Trigger</h4>
   <ol>
-    <li>Push code with [test] in commit message to GitHub</li>
+    <li>Push code commit with [test] in commit message to GitHub</li>
     <li>GitHub Actions immediately triggers workflow</li>
     <li>Continue with standard test execution flow</li>
   </ol>
@@ -157,22 +213,38 @@ flowchart TD
   <h4>Standard Test Execution Flow:</h4>
   <ol>
     <li>Load previous test history from git storage</li>
+    <li>Load test-to-work-item mappings from centralized storage</li>
+    <li>Initialize Azure DevOps client with PAT authentication</li>
+    <li>Initialize test radiator monitoring</li>
     <li>Prepare history files for current test run</li>
     <li>Execute pytest test suite against real Android device</li>
-    <li>Update Azure DevOps Test Cases with pass/fail results</li>
+    <li>Pytest hooks automatically capture test results and send to Azure DevOps</li>
+    <li>Update Azure DevOps work items with test execution status (Design → Closed for passing tests)</li>
+    <li>Create bugs in Azure DevOps for any failed tests with detailed error information</li>
+    <li>Update radiator dashboard with real-time test status</li>
     <li>Generate Allure HTML report with historical trends</li>
     <li>Clean up malformed data that Allure injects</li>
-    <li>Save updated history and version info to git storage</li>
-    <li>Deploy final report to GitHub Pages</li>
+    <li>Save updated history and radiator data back to git storage</li>
+    <li>Save updated test mappings for future runs</li>
+    <li>Deploy final report and radiator dashboard to GitHub Pages</li>
   </ol>
 
-  <h3>Azure DevOps Integration:</h3>
+  <h3>Azure DevOps Integration Benefits:</h3>
   <ul>
-    <li><strong>Test Case Management:</strong> Work items automatically updated with test results</li>
-    <li><strong>Traceability:</strong> Direct links between test functions and Azure work items</li>
-    <li><strong>Status Transitions:</strong> Test Cases move from Design → Closed on pass, stay Ready on fail</li>
-    <li><strong>Execution History:</strong> Detailed logs stored in Azure DevOps work item history</li>
-    <li><strong>Manual Triggering:</strong> On-demand test execution from Azure DevOps UI</li>
+    <li><strong>Manual Test Triggering:</strong> On-demand test execution from Azure DevOps interface without code changes</li>
+    <li><strong>Work Item Traceability:</strong> Direct links between test functions and Azure DevOps work items</li>
+    <li><strong>Automated Status Updates:</strong> Test results automatically update work item states and history</li>
+    <li><strong>Bug Management:</strong> Failed tests create detailed bug reports with error information and links</li>
+    <li><strong>Cross-Platform Workflow:</strong> Combines Azure DevOps work management with GitHub Actions execution</li>
+  </ul>
+
+  <h3>Radiator Dashboard Features:</h3>
+  <ul>
+    <li><strong>Real-time Status:</strong> Live updates of test execution progress across all projects</li>
+    <li><strong>Historical Trends:</strong> Visual representation of test success rates and performance over time</li>
+    <li><strong>Multi-Project View:</strong> Consolidated dashboard showing status of appium-tests, sbsaa-tests, and other projects</li>
+    <li><strong>API Integration:</strong> RESTful endpoints for external monitoring tools and integrations</li>
+    <li><strong>Dark Mode UI:</strong> Modern, eye-friendly interface optimized for continuous monitoring</li>
   </ul>
 </body>
 </html>
