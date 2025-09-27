@@ -88,27 +88,32 @@
 <body>
   <div class="mermaid">
 flowchart TD
-    subgraph Azure [Azure DevOps]
+    subgraph Azure [Azure DevOps Ecosystem]
         ADO[Azure DevOps Project]
         ADP[Azure Pipeline]
         ADA[Self-hosted Agent]
         WI[Work Items]
         PAT[PAT Authentication]
         BUGS[Auto-Generated Bugs]
+        WORKITEMS[Test Mappings]
     end
 
     subgraph GitHub [GitHub Cloud]
         GHA[GitHub Actions]
-        GHR[sbsaa Repository]
+        GHR[Test Repository]
+        GHRS[sbsaa Repository]
+        GHRN[notepad-tests Repository]
         GHP[GitHub Pages]
     end
 
-    subgraph Storage [Git Storage]
+    subgraph Storage [Git Storage Hub]
         GSR[git_storage repo]
         APT[appium-tests/]
         SBT[sbsaa-tests/]
+        NPT[notepad-tests/]
         RD[radiator-data/]
         MAP[test-mappings/]
+        HIST[allure-history/]
     end
 
     subgraph Runner [Self-Hosted Runner WIN10]
@@ -121,12 +126,19 @@ flowchart TD
         TR[Test Radiator]
         AZ[Azure DevOps Client]
         HOOKS[Pytest Hooks]
+        WAPP[WinAppDriver]
     end
 
-    subgraph Device [Android Device]
+    subgraph AndroidDevice [Android Device]
         AOS[Android OS]
         SA[Weather App]
         ADBD[ADB Daemon]
+    end
+
+    subgraph WindowsApps [Windows Applications]
+        NOTEPAD[Windows Notepad]
+        CALC[Calculator]
+        EXPLORER[File Explorer]
     end
 
     subgraph Radiator [Test Radiator Dashboard]
@@ -134,29 +146,52 @@ flowchart TD
         RUI[Dashboard UI]
         RAPI[Status API]
         FC[Flowchart View]
+        PROJECTS[Multi-Project View]
     end
 
-    ADP -->|"Push [test] commit"| GHR
-    ADA -->|"Hosts"| ADP
+    %% Azure DevOps Trigger Flow
+    ADP -->|"Manual Trigger"| ADA
+    ADA -->|"Push [test] commit"| GHR
+    ADA -->|"Push [test] commit"| GHRS
+    ADA -->|"Push [test] commit"| GHRN
+    
+    %% GitHub Actions Flow
     GHR -->|"Trigger on [test]"| GHA
+    GHRS -->|"Trigger on [test]"| GHA
+    GHRN -->|"Trigger on [test]"| GHA
     GHA -->|Start workflow| SH
     SH -->|Clone| GHR
+    SH -->|Clone| GHRS
+    SH -->|Clone| GHRN
+    
+    %% Storage and History
     SH -->|Load History| GSR
     SH -->|Load Test Mappings| MAP
-    SH -->|Run Tests| AS
+    GSR -->|Store Results| HIST
+    
+    %% Test Execution Flows
+    SH -->|Android Tests| AS
+    SH -->|Windows Tests| WAPP
     AS -->|Control| ADB
+    WAPP -->|Control| NOTEPAD
+    WAPP -->|Control| CALC
+    WAPP -->|Control| EXPLORER
     ADB -->|Connect| ADBD
     ADBD -->|Execute| SA
     
+    %% Azure DevOps Integration
     HOOKS -->|Test Results| AZ
     AZ -->|PAT Auth| PAT
     PAT -->|Authenticate| ADO
     AZ -->|Update Work Items| WI
     AZ -->|Create Bugs on Fail| BUGS
+    AZ -->|Load Mappings| WORKITEMS
     WI -->|State Transitions| ADO
+    WORKITEMS -->|Link Tests| WI
     
+    %% Reporting and Dashboard
     UH -->|Process| AO
-    AO -->|Generate| GHP
+    AO -->|Generate Reports| GHP
     AO -->|Save History| GSR
     AZ -->|Save Mappings| MAP
     
@@ -166,11 +201,18 @@ flowchart TD
     RUI -->|Display| GHP
     RAPI -->|Serve Status| RUI
     FC -->|Architecture View| RUI
+    PROJECTS -->|Multi-Project Dashboard| RUI
+
+    %% Project-specific flows
+    APT -->|Appium Test Data| RDB
+    SBT -->|SBSAA Test Data| RDB
+    NPT -->|Notepad Test Data| RDB
 
     style GitHub fill:#4a9eff,color:#fff
     style Storage fill:#d69e2e,color:#fff
     style Runner fill:#38a169,color:#fff
-    style Device fill:#38a169,color:#fff
+    style AndroidDevice fill:#38a169,color:#fff
+    style WindowsApps fill:#805ad5,color:#fff
     style Radiator fill:#805ad5,color:#fff
     style Azure fill:#0078d4,color:#fff
   </div>
@@ -179,14 +221,15 @@ flowchart TD
   <ul>
     <li><strong>Hybrid Trigger System:</strong> Manual execution via Azure DevOps Pipeline or automatic via GitHub commits with [test]</li>
     <li><strong>Azure Pipeline Integration:</strong> Self-hosted agent can manually trigger test execution by pushing [test] commits to GitHub</li>
-    <li><strong>Git Storage Database:</strong> Centralized history persistence across multiple projects</li>
-    <li><strong>Project Isolation:</strong> Separate namespaces (appium-tests, sbsaa-tests, radiator-data, test-mappings) prevent data contamination</li>
+    <li><strong>Multi-Platform Testing:</strong> Supports both Android (via Appium) and Windows applications (via WinAppDriver)</li>
+    <li><strong>Git Storage Database:</strong> Centralized history persistence across multiple projects (appium-tests, sbsaa-tests, notepad-tests)</li>
+    <li><strong>Project Isolation:</strong> Separate namespaces prevent data contamination between different test suites</li>
     <li><strong>Azure DevOps Integration:</strong> Full work item lifecycle management with automated state transitions</li>
     <li><strong>PAT Authentication:</strong> Secure token-based authentication with Azure DevOps using GitHub Secrets</li>
     <li><strong>Pytest Hook System:</strong> Automatic test result reporting to Azure DevOps via custom pytest hooks</li>
     <li><strong>Test-to-Work-Item Mapping:</strong> JSON-based mapping system linking test functions to Azure DevOps work items</li>
     <li><strong>History Management:</strong> Pre/post processing to handle Allure's malformed data injection</li>
-    <li><strong>Real Device Testing:</strong> Hardware-accelerated execution with ADB shell support</li>
+    <li><strong>Cross-Platform Device Testing:</strong> Hardware-accelerated execution with ADB shell support and Windows app automation</li>
     <li><strong>Scalable Reporting:</strong> Automated deployment to GitHub Pages with trend analysis</li>
     <li><strong>Test Radiator Dashboard:</strong> Real-time monitoring and visualization with architecture flowchart view</li>
     <li><strong>Automated Bug Creation:</strong> Failed tests automatically create linked bug work items in Azure DevOps</li>
@@ -198,7 +241,7 @@ flowchart TD
   <ol>
     <li>Manually run Azure DevOps pipeline from the web interface</li>
     <li>Self-hosted agent executes pipeline script</li>
-    <li>Pipeline pushes empty commit with [test] keyword to GitHub repository</li>
+    <li>Pipeline pushes empty commit with [test] keyword to target GitHub repository</li>
     <li>GitHub Actions detects [test] in commit message and triggers workflow</li>
     <li>Continue with standard test execution flow</li>
   </ol>
@@ -217,7 +260,7 @@ flowchart TD
     <li>Initialize Azure DevOps client with PAT authentication</li>
     <li>Initialize test radiator monitoring</li>
     <li>Prepare history files for current test run</li>
-    <li>Execute pytest test suite against real Android device</li>
+    <li>Execute pytest test suite against target platform (Android device or Windows applications)</li>
     <li>Pytest hooks automatically capture test results and send to Azure DevOps</li>
     <li>Update Azure DevOps work items with test execution status (Design → Closed for passing tests)</li>
     <li>Create bugs in Azure DevOps for any failed tests with detailed error information</li>
@@ -236,15 +279,26 @@ flowchart TD
     <li><strong>Automated Status Updates:</strong> Test results automatically update work item states and history</li>
     <li><strong>Bug Management:</strong> Failed tests create detailed bug reports with error information and links</li>
     <li><strong>Cross-Platform Workflow:</strong> Combines Azure DevOps work management with GitHub Actions execution</li>
+    <li><strong>Multi-Repository Support:</strong> Single Azure pipeline can trigger tests across multiple GitHub repositories</li>
   </ul>
 
   <h3>Radiator Dashboard Features:</h3>
   <ul>
     <li><strong>Real-time Status:</strong> Live updates of test execution progress across all projects</li>
     <li><strong>Historical Trends:</strong> Visual representation of test success rates and performance over time</li>
-    <li><strong>Multi-Project View:</strong> Consolidated dashboard showing status of appium-tests, sbsaa-tests, and other projects</li>
+    <li><strong>Multi-Project View:</strong> Consolidated dashboard showing status of appium-tests, sbsaa-tests, notepad-tests, and app-availability-check projects</li>
     <li><strong>API Integration:</strong> RESTful endpoints for external monitoring tools and integrations</li>
     <li><strong>Dark Mode UI:</strong> Modern, eye-friendly interface optimized for continuous monitoring</li>
+    <li><strong>Direct Report Links:</strong> One-click access to detailed Allure reports for each project</li>
+    <li><strong>Architecture Visualization:</strong> Interactive flowchart showing complete system architecture</li>
+  </ul>
+
+  <h3>Platform Support:</h3>
+  <ul>
+    <li><strong>Android Testing:</strong> Real device automation via Appium and ADB for weather app testing</li>
+    <li><strong>Windows Application Testing:</strong> Desktop automation via WinAppDriver for Notepad, Calculator, and File Explorer</li>
+    <li><strong>Web Application Testing:</strong> Browser automation capabilities (extensible)</li>
+    <li><strong>API Testing:</strong> REST/GraphQL endpoint testing (extensible)</li>
   </ul>
 </body>
 </html>
