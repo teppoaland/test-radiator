@@ -12,7 +12,7 @@
     },
     {
       "name": "Windows Notepad Automation Tests",
-      "dataUrl": "https://raw.githubusercontent.com/teppoaland/git_storage/main/allure-history/notepad-tests/history-trend.json",
+      "dataUrl": "https://raw.githubusercontent.com/teppoaland/git_storage/main/allure-history/notepad-tests/history/history-trend.json",
       "reportUrl": "https://teppoaland.github.io/git_storage/allure-history/notepad-tests/"
     }
   ]
